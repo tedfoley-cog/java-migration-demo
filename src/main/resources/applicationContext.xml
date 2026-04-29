@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xmlns:context="http://www.springframework.org/schema/context"
+       xmlns:tx="http://www.springframework.org/schema/tx"
+       xsi:schemaLocation="
+           http://www.springframework.org/schema/beans
+           http://www.springframework.org/schema/beans/spring-beans.xsd
+           http://www.springframework.org/schema/context
+           http://www.springframework.org/schema/context/spring-context.xsd
+           http://www.springframework.org/schema/tx
+           http://www.springframework.org/schema/tx/spring-tx.xsd">
+
+    <!--
+        Legacy XML-based Spring configuration.
+        In a modern Spring Boot app, most of this would be replaced by
+        auto-configuration and @Configuration classes.
+    -->
+
+    <!-- Component scanning — redundant with @SpringBootApplication but kept for legacy compatibility -->
+    <context:component-scan base-package="com.acme.insurance"/>
+
+    <!-- Enable annotation-driven transaction management -->
+    <tx:annotation-driven/>
+
+    <!--
+        Custom bean definitions that the team never migrated to Java config.
+        These would be replaced with @Bean methods in a @Configuration class.
+    -->
+    <bean id="policyNumberInitializer"
+          class="org.springframework.beans.factory.config.MethodInvokingBean">
+        <property name="targetObject" ref="policyNumberGenerator"/>
+        <property name="targetMethod" value="initializeCounters"/>
+    </bean>
+
+</beans>

@@ -1,0 +1,156 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="en">
+<head>
+    <meta charset="UTF-8"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+    <title>ACME Insurance — Dashboard</title>
+    <style>
+        *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+        body {
+            font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+            background: #f0f2f5;
+            color: #1e293b;
+        }
+        header {
+            background: linear-gradient(135deg, #1e3a5f 0%, #0f172a 100%);
+            color: #fff;
+            padding: 1.5rem 2rem;
+            box-shadow: 0 2px 8px rgba(0,0,0,.15);
+        }
+        header h1 { font-size: 1.5rem; font-weight: 600; }
+        header p { color: #94a3b8; font-size: .85rem; margin-top: .25rem; }
+        .container { max-width: 1200px; margin: 2rem auto; padding: 0 1rem; }
+
+        .cards { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 1.25rem; margin-bottom: 2rem; }
+        .card {
+            background: #fff;
+            border-radius: 10px;
+            padding: 1.5rem;
+            box-shadow: 0 1px 4px rgba(0,0,0,.08);
+            border-left: 4px solid #3b82f6;
+        }
+        .card.green { border-left-color: #10b981; }
+        .card.amber { border-left-color: #f59e0b; }
+        .card.red   { border-left-color: #ef4444; }
+        .card .label { font-size: .8rem; color: #64748b; text-transform: uppercase; letter-spacing: .05em; }
+        .card .value { font-size: 2rem; font-weight: 700; margin-top: .25rem; }
+
+        h2 { font-size: 1.15rem; margin-bottom: 1rem; color: #334155; }
+
+        table { width: 100%; border-collapse: collapse; background: #fff; border-radius: 10px; overflow: hidden; box-shadow: 0 1px 4px rgba(0,0,0,.08); }
+        th { background: #f8fafc; text-align: left; padding: .75rem 1rem; font-size: .8rem; color: #64748b; text-transform: uppercase; letter-spacing: .03em; border-bottom: 2px solid #e2e8f0; }
+        td { padding: .75rem 1rem; border-bottom: 1px solid #f1f5f9; font-size: .9rem; }
+        tr:last-child td { border-bottom: none; }
+        tr:hover { background: #f8fafc; }
+
+        .badge { display: inline-block; padding: .2rem .6rem; border-radius: 9999px; font-size: .75rem; font-weight: 600; }
+        .badge-active    { background: #d1fae5; color: #065f46; }
+        .badge-draft     { background: #dbeafe; color: #1e40af; }
+        .badge-cancelled { background: #fee2e2; color: #991b1b; }
+        .badge-expired   { background: #f3f4f6; color: #6b7280; }
+
+        .nav-links { margin-top: .5rem; }
+        .nav-links a { color: #94a3b8; text-decoration: none; margin-right: 1.5rem; font-size: .85rem; }
+        .nav-links a:hover { color: #fff; }
+
+        .section { margin-bottom: 2rem; }
+
+        @media (max-width: 600px) {
+            .cards { grid-template-columns: 1fr; }
+        }
+    </style>
+</head>
+<body>
+
+<header>
+    <h1>ACME Insurance Platform</h1>
+    <p>Policy &amp; Claims Management Dashboard</p>
+    <div class="nav-links">
+        <a href="/swagger-ui.html">Swagger UI</a>
+        <a href="/h2-console">H2 Console</a>
+        <a href="/api/policies">Policies API</a>
+        <a href="/api/claims">Claims API</a>
+    </div>
+</header>
+
+<div class="container">
+
+    <!-- Summary Cards -->
+    <div class="cards">
+        <div class="card green">
+            <div class="label">Active Policies</div>
+            <div class="value" th:text="${activePolicies}">0</div>
+        </div>
+        <div class="card">
+            <div class="label">Draft Policies</div>
+            <div class="value" th:text="${draftPolicies}">0</div>
+        </div>
+        <div class="card red">
+            <div class="label">Cancelled Policies</div>
+            <div class="value" th:text="${cancelledPolicies}">0</div>
+        </div>
+        <div class="card amber">
+            <div class="label">Total Approved Claims</div>
+            <div class="value">$<span th:text="${#numbers.formatDecimal(totalApproved, 1, 'COMMA', 2, 'POINT')}">0.00</span></div>
+        </div>
+    </div>
+
+    <!-- Claim Statistics -->
+    <div class="section">
+        <h2>Claim Statistics by Status</h2>
+        <table>
+            <thead>
+            <tr>
+                <th>Status</th>
+                <th>Count</th>
+                <th>Total Amount</th>
+            </tr>
+            </thead>
+            <tbody>
+            <tr th:each="stat : ${claimStats}">
+                <td th:text="${stat['STATUS']}">—</td>
+                <td th:text="${stat['COUNT']}">0</td>
+                <td>$<span th:text="${#numbers.formatDecimal(stat['TOTAL_AMOUNT'], 1, 'COMMA', 2, 'POINT')}">0.00</span></td>
+            </tr>
+            </tbody>
+        </table>
+    </div>
+
+    <!-- Recent Policies -->
+    <div class="section">
+        <h2>All Policies</h2>
+        <table>
+            <thead>
+            <tr>
+                <th>Policy #</th>
+                <th>Type</th>
+                <th>Status</th>
+                <th>Premium</th>
+                <th>Coverage</th>
+                <th>Customer</th>
+                <th>Effective</th>
+            </tr>
+            </thead>
+            <tbody>
+            <tr th:each="policy : ${recentPolicies}">
+                <td th:text="${policy.policyNumber}">—</td>
+                <td th:text="${policy.policyType}">—</td>
+                <td>
+                    <span class="badge badge-active" th:if="${policy.status == 'ACTIVE'}" th:text="${policy.status}">ACTIVE</span>
+                    <span class="badge badge-draft" th:if="${policy.status == 'DRAFT'}" th:text="${policy.status}">DRAFT</span>
+                    <span class="badge badge-cancelled" th:if="${policy.status == 'CANCELLED'}" th:text="${policy.status}">CANCELLED</span>
+                    <span class="badge badge-expired" th:if="${policy.status == 'EXPIRED'}" th:text="${policy.status}">EXPIRED</span>
+                </td>
+                <td>$<span th:text="${#numbers.formatDecimal(policy.annualPremium, 1, 'COMMA', 2, 'POINT')}">0.00</span></td>
+                <td>$<span th:text="${#numbers.formatDecimal(policy.coverageAmount, 1, 'COMMA', 2, 'POINT')}">0.00</span></td>
+                <td th:text="${policy.customerName}">—</td>
+                <td th:text="${policy.effectiveDate}">—</td>
+            </tr>
+            </tbody>
+        </table>
+    </div>
+
+</div>
+
+</body>
+</html>
