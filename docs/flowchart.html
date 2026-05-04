@@ -39,18 +39,23 @@
     main {
       flex: 1;
       width: 100%;
-      max-width: 1400px;
       padding: 2rem 1rem;
       display: flex;
       justify-content: center;
+      overflow-x: auto;
     }
 
     #flowchart {
       width: 100%;
-      overflow-x: auto;
+      min-width: min-content;
     }
 
-    .mermaid svg { margin: 0 auto; display: block; }
+    .mermaid svg { margin: 0 auto; display: block; overflow: visible; }
+    .mermaid foreignObject { overflow: visible; }
+    .mermaid .nodeLabel { overflow: visible !important; white-space: nowrap !important; }
+    .mermaid .label { overflow: visible !important; }
+    .mermaid .node foreignObject { overflow: visible; }
+    .mermaid .node foreignObject div { overflow: visible !important; }
 
     .legend {
       width: 100%;
@@ -134,40 +139,40 @@
 
 flowchart TD
   %% ── Trigger ──
-  PROMPT["🎤 <b>Presenter Prompts Devin</b><br/>Live session with the Java 8 monolith repo"]
+  PROMPT["🎤 <b>Presenter Prompts Devin</b><br/>Live session with the<br/>Java 8 monolith repo"]
 
   %% ── Analysis ──
-  ANALYZE["🔍 <b>Codebase Analysis</b><br/>Devin reads source structure, pom.xml,<br/>XML config, and identifies legacy patterns"]
+  ANALYZE["🔍 <b>Codebase Analysis</b><br/>Devin reads source structure,<br/>pom.xml, XML config, identifies<br/>legacy patterns"]
 
   %% ── Part 1: Migration ──
   subgraph MIGRATION ["  Part 1 — Java 8 → Java 21 Migration  "]
     direction TB
-    MIG_POM["📦 <b>Upgrade Dependencies</b><br/>Boot 2.7 → 3.x, Java 8 → 21<br/>javax.* → jakarta.*"]
-    MIG_XML["⚙️ <b>Eliminate XML Config</b><br/>applicationContext.xml → @Configuration<br/>web.xml → auto-config"]
-    MIG_JAVA["☕ <b>Modernize Java Idioms</b><br/>Date → LocalDate, records, var,<br/>streams, text blocks"]
-    MIG_DI["💉 <b>Refactor Injection</b><br/>Field @Autowired → constructor injection"]
+    MIG_POM["📦 <b>Upgrade Dependencies</b><br/>Boot 2.7 → 3.x, Java 8 → 21,<br/>javax.* → jakarta.*"]
+    MIG_XML["⚙️ <b>Eliminate XML Config</b><br/>applicationContext.xml →<br/>@Configuration / auto-config"]
+    MIG_JAVA["☕ <b>Modernize Java Idioms</b><br/>Date → LocalDate, records,<br/>var, streams, text blocks"]
+    MIG_DI["💉 <b>Refactor Injection</b><br/>Field @Autowired →<br/>constructor injection"]
     MIG_POM --> MIG_XML --> MIG_JAVA --> MIG_DI
   end
 
   %% ── Part 2: Bugfixes & Enhancements ──
   subgraph FIXES ["  Part 2 — Bugfixes & Enhancements  "]
     direction TB
-    BUG_NPE["🐛 <b>Fix NPE in ClaimService</b><br/>Null-check customer before<br/>accessing email"]
-    BUG_DATE["📅 <b>Fix Date Calculation</b><br/>Off-by-one in pro-rata refund<br/>using DAY_OF_YEAR"]
-    BUG_RACE["⚡ <b>Fix Race Condition</b><br/>Synchronize policy number<br/>generation"]
-    ENH["✨ <b>Implement Enhancements</b><br/>Pagination, config externalization,<br/>input validation"]
+    BUG_NPE["🐛 <b>Fix NPE in ClaimService</b><br/>Null-check customer<br/>before accessing email"]
+    BUG_DATE["📅 <b>Fix Date Calculation</b><br/>Off-by-one in pro-rata<br/>refund via DAY_OF_YEAR"]
+    BUG_RACE["⚡ <b>Fix Race Condition</b><br/>Synchronize policy<br/>number generation"]
+    ENH["✨ <b>Implement Enhancements</b><br/>Pagination, config<br/>externalization, validation"]
     BUG_NPE --> BUG_DATE --> BUG_RACE --> ENH
   end
 
   %% ── Build & Verify ──
-  BUILD["🏗️ <b>Build & Test</b><br/>mvn verify — compile, test, package"]
-  SWAGGER["🌐 <b>Verify Swagger UI</b><br/>All endpoints documented and functional"]
+  BUILD["🏗️ <b>Build &amp; Test</b><br/>mvn verify — compile,<br/>test, package"]
+  SWAGGER["🌐 <b>Verify Swagger UI</b><br/>All endpoints documented<br/>and functional"]
 
   %% ── PR ──
-  PR["📝 <b>Open Pull Request</b><br/>Complete diff with migration notes,<br/>bug fixes, and enhancement summary"]
+  PR["📝 <b>Open Pull Request</b><br/>Complete diff with migration<br/>notes and bug fix summary"]
 
   %% ── Review ──
-  REVIEW["👨‍💻 <b>Presenter Reviews PR</b><br/>Shows audience the diff, Swagger UI,<br/>and dashboard"]
+  REVIEW["👨‍💻 <b>Presenter Reviews PR</b><br/>Shows audience the diff,<br/>Swagger UI, and dashboard"]
 
   %% ── Connections ──
   PROMPT --> ANALYZE
@@ -224,8 +229,8 @@ flowchart TD
         htmlLabels: true,
         curve: 'basis',
         rankSpacing: 60,
-        nodeSpacing: 40,
-        padding: 16,
+        nodeSpacing: 50,
+        padding: 30,
         useMaxWidth: false
       }
     });

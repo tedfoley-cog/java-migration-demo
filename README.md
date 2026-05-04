@@ -9,7 +9,66 @@
 > End-to-end pipeline: presenter prompts Devin → Devin migrates, fixes, enhances → PR with full diff.
 > For the full interactive version, see [`docs/flowchart.html`](docs/flowchart.html).
 
+```mermaid
+flowchart TD
+  PROMPT["🎤 Presenter Prompts Devin\nLive session with the\nJava 8 monolith repo"]
+  ANALYZE["🔍 Codebase Analysis\nDevin reads source structure,\npom.xml, XML config, identifies\nlegacy patterns"]
+
+  subgraph MIGRATION ["Part 1 — Java 8 → Java 21 Migration"]
+    direction TB
+    MIG_POM["📦 Upgrade Dependencies\nBoot 2.7 → 3.x, Java 8 → 21,\njavax.* → jakarta.*"]
+    MIG_XML["⚙️ Eliminate XML Config\napplicationContext.xml →\n@Configuration / auto-config"]
+    MIG_JAVA["☕ Modernize Java Idioms\nDate → LocalDate, records,\nvar, streams, text blocks"]
+    MIG_DI["💉 Refactor Injection\nField @Autowired →\nconstructor injection"]
+    MIG_POM --> MIG_XML --> MIG_JAVA --> MIG_DI
+  end
+
+  subgraph FIXES ["Part 2 — Bugfixes & Enhancements"]
+    direction TB
+    BUG_NPE["🐛 Fix NPE in ClaimService\nNull-check customer\nbefore accessing email"]
+    BUG_DATE["📅 Fix Date Calculation\nOff-by-one in pro-rata\nrefund via DAY_OF_YEAR"]
+    BUG_RACE["⚡ Fix Race Condition\nSynchronize policy\nnumber generation"]
+    ENH["✨ Implement Enhancements\nPagination, config\nexternalization, validation"]
+    BUG_NPE --> BUG_DATE --> BUG_RACE --> ENH
+  end
+
+  BUILD["🏗️ Build & Test\nmvn verify — compile,\ntest, package"]
+  SWAGGER["🌐 Verify Swagger UI\nAll endpoints documented\nand functional"]
+  PR["📝 Open Pull Request\nComplete diff with migration\nnotes and bug fix summary"]
+  REVIEW["👨‍💻 Presenter Reviews PR\nShows audience the diff,\nSwagger UI, and dashboard"]
+
+  PROMPT --> ANALYZE
+  ANALYZE --> MIG_POM
+  ANALYZE --> BUG_NPE
+  MIG_DI --> BUILD
+  ENH --> BUILD
+  BUILD --> SWAGGER
+  SWAGGER --> PR
+  PR --> REVIEW
+
+  classDef trigger    fill:#d1fae5,stroke:#059669,stroke-width:2px,color:#064e3b
+  classDef analysis   fill:#e0e7ff,stroke:#6366f1,stroke-width:2px,color:#312e81
+  classDef migration  fill:#dbeafe,stroke:#3b82f6,stroke-width:2px,color:#1e3a8a
+  classDef bugfix     fill:#fef3c7,stroke:#f59e0b,stroke-width:2px,color:#78350f
+  classDef build      fill:#f0f9ff,stroke:#0ea5e9,stroke-width:1.5px,color:#0c4a6e
+  classDef result     fill:#d1fae5,stroke:#10b981,stroke-width:2px,color:#064e3b
+  classDef review     fill:#f3e8ff,stroke:#a855f7,stroke-width:2px,color:#581c87
+
+  class PROMPT trigger
+  class ANALYZE analysis
+  class MIG_POM,MIG_XML,MIG_JAVA,MIG_DI migration
+  class BUG_NPE,BUG_DATE,BUG_RACE,ENH bugfix
+  class BUILD,SWAGGER build
+  class PR result
+  class REVIEW review
+```
+
+<details>
+<summary>📊 Static flowchart image (click to expand)</summary>
+
 ![Demo Workflow](docs/flowchart.png)
+
+</details>
 
 ## What This Demo Shows
 
