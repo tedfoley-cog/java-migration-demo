@@ -37,6 +37,14 @@ flowchart TD
   PR["📝 Open Pull Request\nComplete diff with migration\nnotes and bug fix summary"]
   REVIEW["👨‍💻 Presenter Reviews PR\nShows audience the diff,\nSwagger UI, and dashboard"]
 
+  subgraph ISSUE ["Optional Part 3 — Feature from Issue"]
+    direction TB
+    ISSUE_READ["📋 Devin Reads GitHub Issue\nPulls issue #2: Add audit trail\nfor policy & claim changes"]
+    ISSUE_IMPL["🔨 Implement Feature\nNew entity, service, REST API,\ndashboard integration"]
+    ISSUE_PR["📝 Open Feature PR\nAudit trail with seed data\nand Swagger docs"]
+    ISSUE_READ --> ISSUE_IMPL --> ISSUE_PR
+  end
+
   PROMPT --> ANALYZE
   ANALYZE --> MIG_POM
   ANALYZE --> BUG_NPE
@@ -45,6 +53,7 @@ flowchart TD
   BUILD --> SWAGGER
   SWAGGER --> PR
   PR --> REVIEW
+  REVIEW -.->|optional| ISSUE_READ
 
   classDef trigger    fill:#d1fae5,stroke:#059669,stroke-width:2px,color:#064e3b
   classDef analysis   fill:#e0e7ff,stroke:#6366f1,stroke-width:2px,color:#312e81
@@ -53,6 +62,7 @@ flowchart TD
   classDef build      fill:#f0f9ff,stroke:#0ea5e9,stroke-width:1.5px,color:#0c4a6e
   classDef result     fill:#d1fae5,stroke:#10b981,stroke-width:2px,color:#064e3b
   classDef review     fill:#f3e8ff,stroke:#a855f7,stroke-width:2px,color:#581c87
+  classDef issue      fill:#fce7f3,stroke:#ec4899,stroke-width:2px,color:#831843
 
   class PROMPT trigger
   class ANALYZE analysis
@@ -61,6 +71,7 @@ flowchart TD
   class BUILD,SWAGGER build
   class PR result
   class REVIEW review
+  class ISSUE_READ,ISSUE_IMPL,ISSUE_PR issue
 ```
 
 <details>
@@ -78,6 +89,8 @@ An AI agent takes a realistic Java 8 enterprise monolith — an insurance policy
 
 Devin analyzes the Java 8 monolith, upgrades the Maven dependencies (Boot 2.7→3.x, javax→jakarta), eliminates XML configuration in favor of auto-config, modernizes Java idioms (Date→LocalDate, records, var, streams), refactors field injection to constructor injection, fixes three seeded bugs (NPE in ClaimService, off-by-one date calculation in PremiumCalculator, race condition in PolicyNumberGenerator), and implements enhancement TODOs (pagination, config externalization, input validation). The audience sees the Swagger UI, Thymeleaf dashboard, and the PR diff as visual proof.
 
+**Optional Part 3**: The presenter opens [Issue #2](https://github.com/tedfoley-cog/java-migration-demo/issues/2) (add audit trail) and prompts Devin to pick it up. Devin reads the issue, implements the full feature (entity, service, REST API, dashboard integration, seed data), and opens a second PR — demonstrating issue-driven development.
+
 ## How the Demo Runs
 
 **Trigger**: The presenter prompts Devin in a live session with the repo URL and a migration instruction.
@@ -91,6 +104,11 @@ Devin analyzes the Java 8 monolith, upgrades the Maven dependencies (Boot 2.7→
 6. Fixes the three seeded bugs and implements TODO/FIXME enhancements
 7. Runs `mvn verify` to confirm the build passes
 8. Opens a PR with the complete migration diff
+
+**Optional Part 3 — Feature from GitHub Issue**:
+9. Devin reads [Issue #2: Add audit trail](https://github.com/tedfoley-cog/java-migration-demo/issues/2)
+10. Implements the feature: `AuditLog` entity, `AuditService`, REST endpoints, dashboard integration, seed data
+11. Opens a second PR with the feature implementation
 
 **Visual artifacts**: Swagger UI (`/swagger-ui.html`), Thymeleaf dashboard (`/dashboard`), H2 Console (`/h2-console`).
 

@@ -11,3 +11,9 @@
 4. Once Devin opens the PR, walk through the diff with the audience — highlight the javax→jakarta migration, Date→LocalDate refactor, constructor injection, and each bug fix
 5. Show the Swagger UI and dashboard running on the migrated app to prove it still works
 6. "This is what a developer would spend days on — Devin did it in one session, end to end"
+
+## Optional Part 3 — Feature from GitHub Issue
+7. Open [Issue #2: Add audit trail](https://github.com/tedfoley-cog/java-migration-demo/issues/2) in the browser and walk through the requirements with the audience
+8. Prompt Devin: "Pick up issue #2 from the repo — implement the audit trail feature as described and open a PR."
+9. While Devin works, point out that it reads the issue, creates the entity/repository/service/controller, wires audit logging into existing services, updates the dashboard, and adds seed data — all from the issue spec
+10. Walk through the PR diff and show the audit trail on the dashboard and in Swagger UI
