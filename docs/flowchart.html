@@ -174,6 +174,15 @@ flowchart TD
   %% ── Review ──
   REVIEW["👨‍💻 <b>Presenter Reviews PR</b><br/>Shows audience the diff,<br/>Swagger UI, and dashboard"]
 
+  %% ── Optional Part 3: Feature from Issue ──
+  subgraph ISSUE ["  Optional Part 3 — Feature from Issue  "]
+    direction TB
+    ISSUE_READ["📋 <b>Devin Reads GitHub Issue</b><br/>Pulls issue #2: Add audit<br/>trail for policy &amp; claims"]
+    ISSUE_IMPL["🔨 <b>Implement Feature</b><br/>New entity, service,<br/>REST API, dashboard"]
+    ISSUE_PR["📝 <b>Open Feature PR</b><br/>Audit trail with seed<br/>data and Swagger docs"]
+    ISSUE_READ --> ISSUE_IMPL --> ISSUE_PR
+  end
+
   %% ── Connections ──
   PROMPT --> ANALYZE
   ANALYZE --> MIG_POM
@@ -183,6 +192,7 @@ flowchart TD
   BUILD --> SWAGGER
   SWAGGER --> PR
   PR --> REVIEW
+  REVIEW -.->|optional| ISSUE_READ
 
   %% ── Styles ──
   classDef trigger    fill:#d1fae5,stroke:#059669,stroke-width:2px,color:#064e3b
@@ -192,6 +202,7 @@ flowchart TD
   classDef build      fill:#f0f9ff,stroke:#0ea5e9,stroke-width:1.5px,color:#0c4a6e
   classDef result     fill:#d1fae5,stroke:#10b981,stroke-width:2px,color:#064e3b
   classDef review     fill:#f3e8ff,stroke:#a855f7,stroke-width:2px,color:#581c87
+  classDef issue      fill:#fce7f3,stroke:#ec4899,stroke-width:2px,color:#831843
 
   class PROMPT trigger
   class ANALYZE analysis
@@ -200,6 +211,7 @@ flowchart TD
   class BUILD,SWAGGER build
   class PR result
   class REVIEW review
+  class ISSUE_READ,ISSUE_IMPL,ISSUE_PR issue
       </pre>
     </div>
   </main>
@@ -213,6 +225,7 @@ flowchart TD
       <span class="legend-item"><span class="legend-swatch" style="background:#fef3c7;border:2px solid #f59e0b;"></span> Bugfixes &amp; Enhancements</span>
       <span class="legend-item"><span class="legend-swatch" style="background:#f0f9ff;border:2px solid #0ea5e9;"></span> Build &amp; Verify</span>
       <span class="legend-item"><span class="legend-swatch" style="background:#f3e8ff;border:2px solid #a855f7;"></span> Presenter Review</span>
+      <span class="legend-item"><span class="legend-swatch" style="background:#fce7f3;border:2px solid #ec4899;"></span> Issue-Driven Feature (optional)</span>
     </div>
   </section>
 
