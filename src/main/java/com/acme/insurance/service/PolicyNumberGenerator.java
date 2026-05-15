@@ -14,12 +14,14 @@ import java.util.concurrent.atomic.AtomicLong;
 public class PolicyNumberGenerator {
 
     private final JdbcTemplate jdbcTemplate;
+    private final Constants constants;
 
     private final AtomicLong policyCounter = new AtomicLong(1000);
     private final AtomicLong claimCounter = new AtomicLong(5000);
 
-    public PolicyNumberGenerator(JdbcTemplate jdbcTemplate) {
+    public PolicyNumberGenerator(JdbcTemplate jdbcTemplate, Constants constants) {
         this.jdbcTemplate = jdbcTemplate;
+        this.constants = constants;
     }
 
     public String nextPolicyNumber() {
@@ -34,9 +36,12 @@ public class PolicyNumberGenerator {
 
     @PostConstruct
     public void initializeCounters() {
+        int policyOffset = Constants.POLICY_NUMBER_PREFIX.length() + 2;
+        int claimOffset = Constants.CLAIM_NUMBER_PREFIX.length() + 2;
+
         try {
             var maxPolicy = jdbcTemplate.queryForObject(
-                    "SELECT MAX(CAST(SUBSTRING(policy_number, 5) AS BIGINT)) FROM policies",
+                    "SELECT MAX(CAST(SUBSTRING(policy_number, " + policyOffset + ") AS BIGINT)) FROM policies",
                     Long.class);
             if (maxPolicy != null) {
                 policyCounter.set(maxPolicy + 1);
@@ -47,7 +52,7 @@ public class PolicyNumberGenerator {
 
         try {
             var maxClaim = jdbcTemplate.queryForObject(
-                    "SELECT MAX(CAST(SUBSTRING(claim_number, 5) AS BIGINT)) FROM claims",
+                    "SELECT MAX(CAST(SUBSTRING(claim_number, " + claimOffset + ") AS BIGINT)) FROM claims",
                     Long.class);
             if (maxClaim != null) {
                 claimCounter.set(maxClaim + 1);
