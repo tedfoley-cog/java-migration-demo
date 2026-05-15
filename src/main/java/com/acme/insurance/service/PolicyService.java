@@ -6,6 +6,8 @@ import com.acme.insurance.model.PolicyStatus;
 import com.acme.insurance.repository.CustomerRepository;
 import com.acme.insurance.repository.PolicyRepository;
 import com.acme.insurance.util.DateUtils;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -31,11 +33,15 @@ public class PolicyService {
         this.premiumCalculator = premiumCalculator;
     }
 
-    // TODO: add pagination — this loads ALL policies into memory
     public List<PolicyDTO> getAllPolicies() {
         return policyRepository.findAllWithCustomer().stream()
                 .map(this::toDTO)
                 .toList();
+    }
+
+    public Page<PolicyDTO> getAllPolicies(Pageable pageable) {
+        return policyRepository.findAllWithCustomer(pageable)
+                .map(this::toDTO);
     }
 
     public PolicyDTO getPolicyById(Long id) {

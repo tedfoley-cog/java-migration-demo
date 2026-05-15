@@ -7,14 +7,10 @@ import org.springframework.stereotype.Service;
 import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.time.LocalDate;
+import java.time.temporal.ChronoUnit;
 
 /**
  * Calculates insurance premiums, pro-rata refunds, and late-payment penalties.
- *
- * BUG: Off-by-one error in pro-rata refund calculation — uses day-of-year
- * which does not account for the actual policy term length. For policies that span
- * a year boundary, the remaining-days calculation is wrong, producing incorrect
- * refund amounts. The correct approach would compute elapsed days between two dates.
  */
 @Service
 public class PremiumCalculator {
@@ -25,15 +21,14 @@ public class PremiumCalculator {
     }
 
     public BigDecimal calculateProRataRefund(Policy policy, LocalDate cancellationDate) {
-        // BUG: Off-by-one — uses day-of-year instead of actual elapsed days
-        int startDayOfYear = policy.getEffectiveDate().getDayOfYear();
-        int cancelDayOfYear = cancellationDate.getDayOfYear();
+        long elapsedDays = ChronoUnit.DAYS.between(policy.getEffectiveDate(), cancellationDate);
+        long totalDays = ChronoUnit.DAYS.between(policy.getEffectiveDate(), policy.getExpirationDate());
 
-        // This is wrong for cross-year policies: day-of-year resets at Jan 1
-        int elapsedDays = cancelDayOfYear - startDayOfYear;
-        int totalDays = 365;
+        if (totalDays <= 0) {
+            return BigDecimal.ZERO;
+        }
 
-        int remainingDays = totalDays - elapsedDays;
+        long remainingDays = totalDays - elapsedDays;
         if (remainingDays < 0) {
             remainingDays = 0;
         }

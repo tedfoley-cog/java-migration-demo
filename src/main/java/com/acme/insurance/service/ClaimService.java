@@ -53,9 +53,12 @@ public class ClaimService {
                 .toList();
     }
 
-    // TODO: add input validation for claim amount — negative values are currently accepted
     @Transactional
     public ClaimDTO fileClaim(ClaimDTO dto) {
+        if (dto.getClaimAmount() == null || dto.getClaimAmount().compareTo(BigDecimal.ZERO) <= 0) {
+            throw new IllegalArgumentException("Claim amount must be positive");
+        }
+
         var policy = policyRepository.findById(dto.getPolicyId()).orElse(null);
         if (policy == null) {
             throw new RuntimeException("Policy not found: " + dto.getPolicyId());
@@ -79,14 +82,6 @@ public class ClaimService {
         return toDTO(saved);
     }
 
-    /**
-     * Approve a claim and calculate the approved amount.
-     *
-     * BUG: NullPointerException when the policy's customer is null (can happen with
-     * orphaned test data or if the customer was deleted). The code dereferences
-     * policy.getCustomer().getEmail() without a null check, causing an NPE
-     * in the notification step.
-     */
     @Transactional
     public ClaimDTO approveClaim(Long claimId, BigDecimal approvedAmount) {
         var claim = claimRepository.findById(claimId).orElse(null);
@@ -98,10 +93,11 @@ public class ClaimService {
         claim.setApprovedAmount(approvedAmount);
         claim.setResolvedDate(LocalDateTime.now());
 
-        // BUG: NPE if policy.getCustomer() is null (orphaned data, lazy-load issue)
         var policy = claim.getPolicy();
-        var customerEmail = policy.getCustomer().getEmail();
-        System.out.println("Sending approval notification to: " + customerEmail);
+        var customer = policy != null ? policy.getCustomer() : null;
+        if (customer != null) {
+            System.out.println("Sending approval notification to: " + customer.getEmail());
+        }
 
         var saved = claimRepository.save(claim);
         return toDTO(saved);

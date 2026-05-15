@@ -4,36 +4,30 @@ import com.acme.insurance.util.Constants;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Service;
 
+import java.util.concurrent.atomic.AtomicLong;
+
 /**
- * Generates sequential policy and claim numbers.
- *
- * BUG: Race condition — the counter is not synchronized. Under concurrent
- * requests, two policies can receive the same policy number, causing a
- * unique-constraint violation. The read-then-increment is not atomic.
+ * Generates sequential policy and claim numbers using thread-safe atomic counters.
  */
 @Service
 public class PolicyNumberGenerator {
 
     private final JdbcTemplate jdbcTemplate;
 
-    private long policyCounter = 1000;
-    private long claimCounter = 5000;
+    private final AtomicLong policyCounter = new AtomicLong(1000);
+    private final AtomicLong claimCounter = new AtomicLong(5000);
 
     public PolicyNumberGenerator(JdbcTemplate jdbcTemplate) {
         this.jdbcTemplate = jdbcTemplate;
     }
 
     public String nextPolicyNumber() {
-        // BUG: not synchronized — concurrent calls can produce duplicate numbers
-        long current = policyCounter;
-        policyCounter = current + 1;
+        long current = policyCounter.getAndIncrement();
         return Constants.POLICY_NUMBER_PREFIX + "-" + String.format("%06d", current);
     }
 
     public String nextClaimNumber() {
-        // Same race condition pattern
-        long current = claimCounter;
-        claimCounter = current + 1;
+        long current = claimCounter.getAndIncrement();
         return Constants.CLAIM_NUMBER_PREFIX + "-" + String.format("%06d", current);
     }
 
@@ -43,7 +37,7 @@ public class PolicyNumberGenerator {
                     "SELECT MAX(CAST(SUBSTRING(policy_number, 5) AS BIGINT)) FROM policies",
                     Long.class);
             if (maxPolicy != null) {
-                policyCounter = maxPolicy + 1;
+                policyCounter.set(maxPolicy + 1);
             }
         } catch (Exception e) {
             // table might not exist yet on first run
@@ -54,7 +48,7 @@ public class PolicyNumberGenerator {
                     "SELECT MAX(CAST(SUBSTRING(claim_number, 5) AS BIGINT)) FROM claims",
                     Long.class);
             if (maxClaim != null) {
-                claimCounter = maxClaim + 1;
+                claimCounter.set(maxClaim + 1);
             }
         } catch (Exception e) {
             // table might not exist yet on first run

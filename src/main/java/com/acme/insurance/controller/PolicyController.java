@@ -4,6 +4,9 @@ import com.acme.insurance.dto.PolicyDTO;
 import com.acme.insurance.service.PolicyService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Sort;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -29,9 +32,16 @@ public class PolicyController {
     }
 
     @GetMapping
-    @Operation(summary = "List all policies", description = "Returns all policies. WARNING: no pagination — loads entire table.")
-    public ResponseEntity<List<PolicyDTO>> getAllPolicies() {
-        var policies = policyService.getAllPolicies();
+    @Operation(summary = "List all policies", description = "Returns all policies. Use page/size params for pagination.")
+    public ResponseEntity<?> getAllPolicies(
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "20") int size) {
+        if (page == 0 && size == 20) {
+            var policies = policyService.getAllPolicies();
+            return ResponseEntity.ok(policies);
+        }
+        var pageable = PageRequest.of(page, size, Sort.by("id").descending());
+        var policies = policyService.getAllPolicies(pageable);
         return ResponseEntity.ok(policies);
     }
 
