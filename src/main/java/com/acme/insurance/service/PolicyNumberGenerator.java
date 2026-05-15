@@ -1,6 +1,7 @@
 package com.acme.insurance.service;
 
 import com.acme.insurance.util.Constants;
+import jakarta.annotation.PostConstruct;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Service;
 
@@ -31,6 +32,7 @@ public class PolicyNumberGenerator {
         return Constants.CLAIM_NUMBER_PREFIX + "-" + String.format("%06d", current);
     }
 
+    @PostConstruct
     public void initializeCounters() {
         try {
             var maxPolicy = jdbcTemplate.queryForObject(
