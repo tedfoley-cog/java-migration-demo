@@ -105,6 +105,7 @@ public class ClaimService {
             throw new RuntimeException("Claim not found: " + claimId);
         }
 
+        String previousStatus = claim.getStatus().name();
         claim.setStatus(ClaimStatus.APPROVED);
         claim.setApprovedAmount(approvedAmount);
         claim.setResolvedDate(new Date());
@@ -116,7 +117,7 @@ public class ClaimService {
 
         Claim saved = claimRepository.save(claim);
         auditService.log("CLAIM", saved.getId(), "STATUS_CHANGED",
-                "SUBMITTED", "APPROVED", "SYSTEM");
+                previousStatus, "APPROVED", "SYSTEM");
         return toDTO(saved);
     }
 
