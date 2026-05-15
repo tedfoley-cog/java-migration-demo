@@ -1,79 +1,72 @@
 package com.acme.insurance.util;
 
-import java.text.ParseException;
-import java.text.SimpleDateFormat;
-import java.util.Calendar;
-import java.util.Date;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
+import java.time.format.DateTimeParseException;
 
 /**
- * Legacy date utility class using java.util.Date and Calendar.
- * A modern Java project would use java.time.LocalDate / LocalDateTime.
+ * Date utility class using java.time API.
  */
 public final class DateUtils {
+
+    private static final DateTimeFormatter DATE_FORMATTER =
+            DateTimeFormatter.ofPattern(Constants.DATE_FORMAT);
 
     private DateUtils() {
     }
 
-    public static Date today() {
-        return new Date();
+    public static LocalDate today() {
+        return LocalDate.now();
     }
 
-    public static Date addDays(Date date, int days) {
-        Calendar cal = Calendar.getInstance();
-        cal.setTime(date);
-        cal.add(Calendar.DAY_OF_MONTH, days);
-        return cal.getTime();
+    public static LocalDate addDays(LocalDate date, int days) {
+        return date.plusDays(days);
     }
 
-    public static Date addMonths(Date date, int months) {
-        Calendar cal = Calendar.getInstance();
-        cal.setTime(date);
-        cal.add(Calendar.MONTH, months);
-        return cal.getTime();
+    public static LocalDate addMonths(LocalDate date, int months) {
+        return date.plusMonths(months);
     }
 
-    public static Date addYears(Date date, int years) {
-        Calendar cal = Calendar.getInstance();
-        cal.setTime(date);
-        cal.add(Calendar.YEAR, years);
-        return cal.getTime();
+    public static LocalDate addYears(LocalDate date, int years) {
+        return date.plusYears(years);
     }
 
-    public static int daysBetween(Date start, Date end) {
-        long diffMillis = end.getTime() - start.getTime();
-        return (int) (diffMillis / (1000 * 60 * 60 * 24));
+    public static int daysBetween(LocalDate start, LocalDate end) {
+        return (int) java.time.temporal.ChronoUnit.DAYS.between(start, end);
     }
 
-    public static boolean isExpired(Date expirationDate) {
-        return expirationDate.before(new Date());
+    public static boolean isExpired(LocalDate expirationDate) {
+        return expirationDate.isBefore(LocalDate.now());
     }
 
-    public static Date parseDate(String dateStr) {
-        SimpleDateFormat sdf = new SimpleDateFormat(Constants.DATE_FORMAT);
+    public static LocalDate parseDate(String dateStr) {
         try {
-            return sdf.parse(dateStr);
-        } catch (ParseException e) {
+            return LocalDate.parse(dateStr, DATE_FORMATTER);
+        } catch (DateTimeParseException e) {
             throw new RuntimeException("Invalid date format: " + dateStr, e);
         }
     }
 
-    public static String formatDate(Date date) {
+    public static String formatDate(LocalDate date) {
         if (date == null) {
             return "";
         }
-        SimpleDateFormat sdf = new SimpleDateFormat(Constants.DATE_FORMAT);
-        return sdf.format(date);
+        return date.format(DATE_FORMATTER);
     }
 
-    public static int getYear(Date date) {
-        Calendar cal = Calendar.getInstance();
-        cal.setTime(date);
-        return cal.get(Calendar.YEAR);
+    public static String formatDateTime(LocalDateTime dateTime) {
+        if (dateTime == null) {
+            return "";
+        }
+        return dateTime.toLocalDate().format(DATE_FORMATTER);
     }
 
-    public static int getMonth(Date date) {
-        Calendar cal = Calendar.getInstance();
-        cal.setTime(date);
-        return cal.get(Calendar.MONTH) + 1;
+    public static int getYear(LocalDate date) {
+        return date.getYear();
+    }
+
+    public static int getMonth(LocalDate date) {
+        return date.getMonthValue();
     }
 }

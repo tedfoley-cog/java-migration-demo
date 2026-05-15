@@ -1,21 +1,20 @@
 package com.acme.insurance.model;
 
 import java.math.BigDecimal;
-import java.util.Date;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
 
-import javax.persistence.Column;
-import javax.persistence.Entity;
-import javax.persistence.EnumType;
-import javax.persistence.Enumerated;
-import javax.persistence.FetchType;
-import javax.persistence.GeneratedValue;
-import javax.persistence.GenerationType;
-import javax.persistence.Id;
-import javax.persistence.JoinColumn;
-import javax.persistence.ManyToOne;
-import javax.persistence.Table;
-import javax.persistence.Temporal;
-import javax.persistence.TemporalType;
+import jakarta.persistence.Column;
+import jakarta.persistence.Entity;
+import jakarta.persistence.EnumType;
+import jakarta.persistence.Enumerated;
+import jakarta.persistence.FetchType;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.GenerationType;
+import jakarta.persistence.Id;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.ManyToOne;
+import jakarta.persistence.Table;
 
 @Entity
 @Table(name = "claims")
@@ -39,16 +38,13 @@ public class Claim {
     private BigDecimal approvedAmount;
 
     @Column(name = "incident_date", nullable = false)
-    @Temporal(TemporalType.DATE)
-    private Date incidentDate;
+    private LocalDate incidentDate;
 
     @Column(name = "filed_date", nullable = false)
-    @Temporal(TemporalType.TIMESTAMP)
-    private Date filedDate;
+    private LocalDateTime filedDate;
 
     @Column(name = "resolved_date")
-    @Temporal(TemporalType.TIMESTAMP)
-    private Date resolvedDate;
+    private LocalDateTime resolvedDate;
 
     @Column(name = "description", length = 2000)
     private String description;
@@ -103,27 +99,27 @@ public class Claim {
         this.approvedAmount = approvedAmount;
     }
 
-    public Date getIncidentDate() {
+    public LocalDate getIncidentDate() {
         return incidentDate;
     }
 
-    public void setIncidentDate(Date incidentDate) {
+    public void setIncidentDate(LocalDate incidentDate) {
         this.incidentDate = incidentDate;
     }
 
-    public Date getFiledDate() {
+    public LocalDateTime getFiledDate() {
         return filedDate;
     }
 
-    public void setFiledDate(Date filedDate) {
+    public void setFiledDate(LocalDateTime filedDate) {
         this.filedDate = filedDate;
     }
 
-    public Date getResolvedDate() {
+    public LocalDateTime getResolvedDate() {
         return resolvedDate;
     }
 
-    public void setResolvedDate(Date resolvedDate) {
+    public void setResolvedDate(LocalDateTime resolvedDate) {
         this.resolvedDate = resolvedDate;
     }
 

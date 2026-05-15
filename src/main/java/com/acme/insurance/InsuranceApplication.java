@@ -2,24 +2,17 @@ package com.acme.insurance;
 
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
-import org.springframework.boot.builder.SpringApplicationBuilder;
-import org.springframework.boot.web.servlet.support.SpringBootServletInitializer;
-import org.springframework.context.annotation.ImportResource;
 
 /**
- * ACME Insurance Platform — monolithic entry point.
+ * ACME Insurance Platform — application entry point.
  *
- * Deployed as a WAR to external Tomcat in production; runs embedded for development.
- * Uses XML-based bean definitions alongside annotation config (legacy pattern).
+ * Runs as an executable JAR with embedded Tomcat.
+ * XML configuration and WAR packaging have been removed in the migration
+ * to Spring Boot 3.x — all beans are now auto-configured or declared
+ * in @Configuration classes.
  */
 @SpringBootApplication
-@ImportResource("classpath:applicationContext.xml")
-public class InsuranceApplication extends SpringBootServletInitializer {
-
-    @Override
-    protected SpringApplicationBuilder configure(SpringApplicationBuilder builder) {
-        return builder.sources(InsuranceApplication.class);
-    }
+public class InsuranceApplication {
 
     public static void main(String[] args) {
         SpringApplication.run(InsuranceApplication.class, args);

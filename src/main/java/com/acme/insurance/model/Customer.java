@@ -1,17 +1,16 @@
 package com.acme.insurance.model;
 
-import java.util.Date;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.List;
 
-import javax.persistence.Column;
-import javax.persistence.Entity;
-import javax.persistence.GeneratedValue;
-import javax.persistence.GenerationType;
-import javax.persistence.Id;
-import javax.persistence.OneToMany;
-import javax.persistence.Table;
-import javax.persistence.Temporal;
-import javax.persistence.TemporalType;
+import jakarta.persistence.Column;
+import jakarta.persistence.Entity;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.GenerationType;
+import jakarta.persistence.Id;
+import jakarta.persistence.OneToMany;
+import jakarta.persistence.Table;
 
 @Entity
 @Table(name = "customers")
@@ -34,12 +33,10 @@ public class Customer {
     private String phoneNumber;
 
     @Column(name = "date_of_birth")
-    @Temporal(TemporalType.DATE)
-    private Date dateOfBirth;
+    private LocalDate dateOfBirth;
 
     @Column(name = "created_at")
-    @Temporal(TemporalType.TIMESTAMP)
-    private Date createdAt;
+    private LocalDateTime createdAt;
 
     @OneToMany(mappedBy = "customer")
     private List<Policy> policies;
@@ -87,19 +84,19 @@ public class Customer {
         this.phoneNumber = phoneNumber;
     }
 
-    public Date getDateOfBirth() {
+    public LocalDate getDateOfBirth() {
         return dateOfBirth;
     }
 
-    public void setDateOfBirth(Date dateOfBirth) {
+    public void setDateOfBirth(LocalDate dateOfBirth) {
         this.dateOfBirth = dateOfBirth;
     }
 
-    public Date getCreatedAt() {
+    public LocalDateTime getCreatedAt() {
         return createdAt;
     }
 
-    public void setCreatedAt(Date createdAt) {
+    public void setCreatedAt(LocalDateTime createdAt) {
         this.createdAt = createdAt;
     }
 
