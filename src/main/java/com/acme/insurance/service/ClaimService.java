@@ -33,6 +33,9 @@ public class ClaimService {
     @Autowired
     private JdbcTemplate jdbcTemplate;
 
+    @Autowired
+    private AuditService auditService;
+
     public List<ClaimDTO> getAllClaims() {
         List<Claim> claims = claimRepository.findAll();
         List<ClaimDTO> dtos = new ArrayList<ClaimDTO>();
@@ -82,6 +85,8 @@ public class ClaimService {
         claim.setFiledDate(new Date());
 
         Claim saved = claimRepository.save(claim);
+        auditService.log("CLAIM", saved.getId(), "CREATED",
+                null, "status=SUBMITTED, amount=" + saved.getClaimAmount(), "SYSTEM");
         return toDTO(saved);
     }
 
@@ -110,6 +115,8 @@ public class ClaimService {
         System.out.println("Sending approval notification to: " + customerEmail);
 
         Claim saved = claimRepository.save(claim);
+        auditService.log("CLAIM", saved.getId(), "STATUS_CHANGED",
+                "SUBMITTED", "APPROVED", "SYSTEM");
         return toDTO(saved);
     }
 
@@ -120,11 +127,14 @@ public class ClaimService {
             throw new RuntimeException("Claim not found: " + claimId);
         }
 
+        String previousStatus = claim.getStatus().name();
         claim.setStatus(ClaimStatus.DENIED);
         claim.setAdjusterNotes(reason);
         claim.setResolvedDate(new Date());
 
         Claim saved = claimRepository.save(claim);
+        auditService.log("CLAIM", saved.getId(), "STATUS_CHANGED",
+                previousStatus, "DENIED", "SYSTEM");
         return toDTO(saved);
     }
 

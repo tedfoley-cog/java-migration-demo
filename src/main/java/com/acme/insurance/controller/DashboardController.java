@@ -1,5 +1,7 @@
 package com.acme.insurance.controller;
 
+import com.acme.insurance.dto.AuditLogDTO;
+import com.acme.insurance.service.AuditService;
 import com.acme.insurance.service.ClaimService;
 import com.acme.insurance.service.PolicyService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -20,6 +22,9 @@ public class DashboardController {
     @Autowired
     private ClaimService claimService;
 
+    @Autowired
+    private AuditService auditService;
+
     @GetMapping("/dashboard")
     public String dashboard(Model model) {
         long activePolicies = policyService.countByStatus("ACTIVE");
@@ -34,6 +39,8 @@ public class DashboardController {
         model.addAttribute("cancelledPolicies", cancelledPolicies);
         model.addAttribute("totalApproved", totalApproved);
         model.addAttribute("claimStats", claimStats);
+        List<AuditLogDTO> recentAudit = auditService.getRecentAuditEntries();
+        model.addAttribute("recentAudit", recentAudit);
         model.addAttribute("recentPolicies", policyService.getAllPolicies());
 
         return "dashboard";
