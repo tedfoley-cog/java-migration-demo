@@ -32,14 +32,10 @@ public class PolicyController {
     }
 
     @GetMapping
-    @Operation(summary = "List all policies", description = "Returns all policies. Use page/size params for pagination.")
-    public ResponseEntity<?> getAllPolicies(
+    @Operation(summary = "List all policies", description = "Returns all policies with pagination. Defaults to page 0, size 20.")
+    public ResponseEntity<Page<PolicyDTO>> getAllPolicies(
             @RequestParam(defaultValue = "0") int page,
             @RequestParam(defaultValue = "20") int size) {
-        if (page == 0 && size == 20) {
-            var policies = policyService.getAllPolicies();
-            return ResponseEntity.ok(policies);
-        }
         var pageable = PageRequest.of(page, size, Sort.by("id").descending());
         var policies = policyService.getAllPolicies(pageable);
         return ResponseEntity.ok(policies);
