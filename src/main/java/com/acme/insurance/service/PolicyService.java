@@ -32,6 +32,9 @@ public class PolicyService {
     @Autowired
     private PremiumCalculator premiumCalculator;
 
+    @Autowired
+    private AuditService auditService;
+
     // TODO: add pagination — this loads ALL policies into memory
     public List<PolicyDTO> getAllPolicies() {
         List<Policy> policies = policyRepository.findAllWithCustomer();
@@ -97,6 +100,8 @@ public class PolicyService {
         policy.setUpdatedAt(now);
 
         Policy saved = policyRepository.save(policy);
+        auditService.log("POLICY", saved.getId(), "CREATED",
+                null, "status=DRAFT, type=" + saved.getPolicyType(), "SYSTEM");
         return toDTO(saved);
     }
 
@@ -109,9 +114,12 @@ public class PolicyService {
         if (policy.getStatus() != PolicyStatus.DRAFT) {
             throw new RuntimeException("Only DRAFT policies can be activated");
         }
+        String previousStatus = policy.getStatus().name();
         policy.setStatus(PolicyStatus.ACTIVE);
         policy.setUpdatedAt(new Date());
         Policy saved = policyRepository.save(policy);
+        auditService.log("POLICY", saved.getId(), "STATUS_CHANGED",
+                previousStatus, "ACTIVE", "SYSTEM");
         return toDTO(saved);
     }
 
@@ -121,6 +129,7 @@ public class PolicyService {
         if (policy == null) {
             throw new RuntimeException("Policy not found: " + id);
         }
+        String previousStatus = policy.getStatus().name();
         policy.setStatus(PolicyStatus.CANCELLED);
         policy.setUpdatedAt(new Date());
 
@@ -129,6 +138,8 @@ public class PolicyService {
         System.out.println("Pro-rata refund for " + policy.getPolicyNumber() + ": $" + refund);
 
         Policy saved = policyRepository.save(policy);
+        auditService.log("POLICY", saved.getId(), "STATUS_CHANGED",
+                previousStatus, "CANCELLED", "SYSTEM");
         return toDTO(saved);
     }
 

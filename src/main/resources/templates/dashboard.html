@@ -70,6 +70,7 @@
         <a href="/h2-console">H2 Console</a>
         <a href="/api/policies">Policies API</a>
         <a href="/api/claims">Claims API</a>
+        <a href="/api/audit">Audit API</a>
     </div>
 </header>
 
@@ -111,6 +112,33 @@
                 <td th:text="${stat['STATUS']}">—</td>
                 <td th:text="${stat['COUNT']}">0</td>
                 <td>$<span th:text="${#numbers.formatDecimal(stat['TOTAL_AMOUNT'], 1, 'COMMA', 2, 'POINT')}">0.00</span></td>
+            </tr>
+            </tbody>
+        </table>
+    </div>
+
+    <!-- Audit Trail -->
+    <div class="section">
+        <h2>Recent Audit Trail</h2>
+        <table>
+            <thead>
+            <tr>
+                <th>Timestamp</th>
+                <th>Entity</th>
+                <th>Action</th>
+                <th>Previous</th>
+                <th>New</th>
+                <th>Performed By</th>
+            </tr>
+            </thead>
+            <tbody>
+            <tr th:each="entry : ${recentAudit}">
+                <td th:text="${entry.timestamp}">—</td>
+                <td th:text="${entry.entityType + ' #' + entry.entityId}">—</td>
+                <td th:text="${entry.action}">—</td>
+                <td th:text="${entry.previousValue != null ? entry.previousValue : '—'}">—</td>
+                <td th:text="${entry.newValue != null ? entry.newValue : '—'}">—</td>
+                <td th:text="${entry.performedBy}">—</td>
             </tr>
             </tbody>
         </table>

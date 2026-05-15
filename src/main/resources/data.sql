@@ -103,3 +103,34 @@ VALUES (5, 'CLM-005005', 'APPROVED', 75000.00, 70000.00, '2024-05-01',
         '2024-05-03 08:00:00', '2024-06-20 15:00:00',
         'Fire damage to retail storefront — electrical fault in back office',
         'Fire department report confirms electrical origin. Coverage approved minus deductible.', 6);
+
+-- Audit Log
+INSERT INTO audit_log (id, entity_type, entity_id, action, previous_value, new_value, performed_by, timestamp)
+VALUES (1, 'POLICY', 1, 'CREATED', NULL, 'status=DRAFT, type=HOME', 'SYSTEM', '2023-12-15 10:00:00');
+
+INSERT INTO audit_log (id, entity_type, entity_id, action, previous_value, new_value, performed_by, timestamp)
+VALUES (2, 'POLICY', 1, 'STATUS_CHANGED', 'DRAFT', 'ACTIVE', 'SYSTEM', '2024-01-01 00:00:00');
+
+INSERT INTO audit_log (id, entity_type, entity_id, action, previous_value, new_value, performed_by, timestamp)
+VALUES (3, 'POLICY', 2, 'CREATED', NULL, 'status=DRAFT, type=AUTO', 'SYSTEM', '2024-03-01 09:00:00');
+
+INSERT INTO audit_log (id, entity_type, entity_id, action, previous_value, new_value, performed_by, timestamp)
+VALUES (4, 'POLICY', 2, 'STATUS_CHANGED', 'DRAFT', 'ACTIVE', 'SYSTEM', '2024-03-15 00:00:00');
+
+INSERT INTO audit_log (id, entity_type, entity_id, action, previous_value, new_value, performed_by, timestamp)
+VALUES (5, 'POLICY', 5, 'STATUS_CHANGED', 'ACTIVE', 'CANCELLED', 'SYSTEM', '2024-04-10 16:00:00');
+
+INSERT INTO audit_log (id, entity_type, entity_id, action, previous_value, new_value, performed_by, timestamp)
+VALUES (6, 'CLAIM', 1, 'CREATED', NULL, 'status=SUBMITTED, amount=12500.00', 'SYSTEM', '2024-04-12 09:00:00');
+
+INSERT INTO audit_log (id, entity_type, entity_id, action, previous_value, new_value, performed_by, timestamp)
+VALUES (7, 'CLAIM', 1, 'STATUS_CHANGED', 'SUBMITTED', 'SETTLED', 'SYSTEM', '2024-05-15 16:00:00');
+
+INSERT INTO audit_log (id, entity_type, entity_id, action, previous_value, new_value, performed_by, timestamp)
+VALUES (8, 'CLAIM', 4, 'CREATED', NULL, 'status=SUBMITTED, amount=3500.00', 'SYSTEM', '2024-06-18 11:00:00');
+
+INSERT INTO audit_log (id, entity_type, entity_id, action, previous_value, new_value, performed_by, timestamp)
+VALUES (9, 'CLAIM', 4, 'STATUS_CHANGED', 'SUBMITTED', 'DENIED', 'SYSTEM', '2024-07-10 09:30:00');
+
+INSERT INTO audit_log (id, entity_type, entity_id, action, previous_value, new_value, performed_by, timestamp)
+VALUES (10, 'CLAIM', 5, 'STATUS_CHANGED', 'SUBMITTED', 'APPROVED', 'SYSTEM', '2024-06-20 15:00:00');
