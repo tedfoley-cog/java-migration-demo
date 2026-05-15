@@ -2,32 +2,29 @@ package com.acme.insurance.controller;
 
 import com.acme.insurance.service.ClaimService;
 import com.acme.insurance.service.PolicyService;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
 
-import java.math.BigDecimal;
-import java.util.List;
-import java.util.Map;
-
 @Controller
 public class DashboardController {
 
-    @Autowired
-    private PolicyService policyService;
+    private final PolicyService policyService;
+    private final ClaimService claimService;
 
-    @Autowired
-    private ClaimService claimService;
+    public DashboardController(PolicyService policyService, ClaimService claimService) {
+        this.policyService = policyService;
+        this.claimService = claimService;
+    }
 
     @GetMapping("/dashboard")
     public String dashboard(Model model) {
-        long activePolicies = policyService.countByStatus("ACTIVE");
-        long draftPolicies = policyService.countByStatus("DRAFT");
-        long cancelledPolicies = policyService.countByStatus("CANCELLED");
+        var activePolicies = policyService.countByStatus("ACTIVE");
+        var draftPolicies = policyService.countByStatus("DRAFT");
+        var cancelledPolicies = policyService.countByStatus("CANCELLED");
 
-        BigDecimal totalApproved = claimService.getTotalApprovedAmount();
-        List<Map<String, Object>> claimStats = claimService.getClaimStatsByStatus();
+        var totalApproved = claimService.getTotalApprovedAmount();
+        var claimStats = claimService.getClaimStatsByStatus();
 
         model.addAttribute("activePolicies", activePolicies);
         model.addAttribute("draftPolicies", draftPolicies);

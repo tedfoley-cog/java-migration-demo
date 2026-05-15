@@ -1,7 +1,6 @@
 package com.acme.insurance.service;
 
 import com.acme.insurance.util.Constants;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Service;
 
@@ -15,11 +14,14 @@ import org.springframework.stereotype.Service;
 @Service
 public class PolicyNumberGenerator {
 
-    @Autowired
-    private JdbcTemplate jdbcTemplate;
+    private final JdbcTemplate jdbcTemplate;
 
     private long policyCounter = 1000;
     private long claimCounter = 5000;
+
+    public PolicyNumberGenerator(JdbcTemplate jdbcTemplate) {
+        this.jdbcTemplate = jdbcTemplate;
+    }
 
     public String nextPolicyNumber() {
         // BUG: not synchronized — concurrent calls can produce duplicate numbers
@@ -37,7 +39,7 @@ public class PolicyNumberGenerator {
 
     public void initializeCounters() {
         try {
-            Long maxPolicy = jdbcTemplate.queryForObject(
+            var maxPolicy = jdbcTemplate.queryForObject(
                     "SELECT MAX(CAST(SUBSTRING(policy_number, 5) AS BIGINT)) FROM policies",
                     Long.class);
             if (maxPolicy != null) {
@@ -48,7 +50,7 @@ public class PolicyNumberGenerator {
         }
 
         try {
-            Long maxClaim = jdbcTemplate.queryForObject(
+            var maxClaim = jdbcTemplate.queryForObject(
                     "SELECT MAX(CAST(SUBSTRING(claim_number, 5) AS BIGINT)) FROM claims",
                     Long.class);
             if (maxClaim != null) {
