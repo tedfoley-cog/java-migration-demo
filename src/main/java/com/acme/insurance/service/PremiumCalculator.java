@@ -6,43 +6,34 @@ import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
 import java.math.RoundingMode;
-import java.util.Calendar;
-import java.util.Date;
+import java.time.LocalDate;
+import java.time.temporal.ChronoUnit;
 
 /**
  * Calculates insurance premiums, pro-rata refunds, and late-payment penalties.
- *
- * BUG: Off-by-one error in pro-rata refund calculation — uses Calendar.DAY_OF_YEAR
- * which does not account for the actual policy term length. For policies that span
- * a year boundary, the remaining-days calculation is wrong, producing incorrect
- * refund amounts. The correct approach would compute elapsed days between two dates.
  */
 @Service
 public class PremiumCalculator {
 
     public BigDecimal calculateAnnualPremium(BigDecimal basePremium) {
-        BigDecimal tax = basePremium.multiply(BigDecimal.valueOf(Constants.PREMIUM_TAX_RATE));
+        var tax = basePremium.multiply(BigDecimal.valueOf(Constants.PREMIUM_TAX_RATE));
         return basePremium.add(tax).setScale(2, RoundingMode.HALF_UP);
     }
 
-    public BigDecimal calculateProRataRefund(Policy policy, Date cancellationDate) {
-        // BUG: Off-by-one — uses day-of-year instead of actual elapsed days
-        Calendar startCal = Calendar.getInstance();
-        startCal.setTime(policy.getEffectiveDate());
+    public BigDecimal calculateProRataRefund(Policy policy, LocalDate cancellationDate) {
+        long elapsedDays = ChronoUnit.DAYS.between(policy.getEffectiveDate(), cancellationDate);
+        long totalDays = ChronoUnit.DAYS.between(policy.getEffectiveDate(), policy.getExpirationDate());
 
-        Calendar cancelCal = Calendar.getInstance();
-        cancelCal.setTime(cancellationDate);
+        if (totalDays <= 0) {
+            return BigDecimal.ZERO;
+        }
 
-        // This is wrong for cross-year policies: DAY_OF_YEAR resets at Jan 1
-        int elapsedDays = cancelCal.get(Calendar.DAY_OF_YEAR) - startCal.get(Calendar.DAY_OF_YEAR);
-        int totalDays = 365;
-
-        int remainingDays = totalDays - elapsedDays;
+        long remainingDays = totalDays - elapsedDays;
         if (remainingDays < 0) {
             remainingDays = 0;
         }
 
-        BigDecimal dailyRate = policy.getAnnualPremium()
+        var dailyRate = policy.getAnnualPremium()
                 .divide(BigDecimal.valueOf(totalDays), 6, RoundingMode.HALF_UP);
 
         return dailyRate.multiply(BigDecimal.valueOf(remainingDays))

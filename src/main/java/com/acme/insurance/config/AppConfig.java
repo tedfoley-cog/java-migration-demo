@@ -7,11 +7,12 @@ import org.springframework.jdbc.core.JdbcTemplate;
 import javax.sql.DataSource;
 
 /**
- * Additional Java-based configuration.
+ * Application configuration.
  *
- * Most beans are still defined in applicationContext.xml — this class exists
- * because the team partially migrated from XML to annotations years ago but
- * never finished the effort.
+ * Replaces the legacy applicationContext.xml — all bean definitions are now
+ * Java-based. Counter initialization is handled by @PostConstruct on
+ * PolicyNumberGenerator, which runs during bean creation before the web
+ * server starts accepting requests.
  */
 @Configuration
 public class AppConfig {

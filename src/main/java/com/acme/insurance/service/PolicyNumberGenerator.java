@@ -1,58 +1,61 @@
 package com.acme.insurance.service;
 
 import com.acme.insurance.util.Constants;
-import org.springframework.beans.factory.annotation.Autowired;
+import jakarta.annotation.PostConstruct;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Service;
 
+import java.util.concurrent.atomic.AtomicLong;
+
 /**
- * Generates sequential policy and claim numbers.
- *
- * BUG: Race condition — the counter is not synchronized. Under concurrent
- * requests, two policies can receive the same policy number, causing a
- * unique-constraint violation. The read-then-increment is not atomic.
+ * Generates sequential policy and claim numbers using thread-safe atomic counters.
  */
 @Service
 public class PolicyNumberGenerator {
 
-    @Autowired
-    private JdbcTemplate jdbcTemplate;
+    private final JdbcTemplate jdbcTemplate;
+    private final Constants constants;
 
-    private long policyCounter = 1000;
-    private long claimCounter = 5000;
+    private final AtomicLong policyCounter = new AtomicLong(1000);
+    private final AtomicLong claimCounter = new AtomicLong(5000);
+
+    public PolicyNumberGenerator(JdbcTemplate jdbcTemplate, Constants constants) {
+        this.jdbcTemplate = jdbcTemplate;
+        this.constants = constants;
+    }
 
     public String nextPolicyNumber() {
-        // BUG: not synchronized — concurrent calls can produce duplicate numbers
-        long current = policyCounter;
-        policyCounter = current + 1;
+        long current = policyCounter.getAndIncrement();
         return Constants.POLICY_NUMBER_PREFIX + "-" + String.format("%06d", current);
     }
 
     public String nextClaimNumber() {
-        // Same race condition pattern
-        long current = claimCounter;
-        claimCounter = current + 1;
+        long current = claimCounter.getAndIncrement();
         return Constants.CLAIM_NUMBER_PREFIX + "-" + String.format("%06d", current);
     }
 
+    @PostConstruct
     public void initializeCounters() {
+        int policyOffset = Constants.POLICY_NUMBER_PREFIX.length() + 2;
+        int claimOffset = Constants.CLAIM_NUMBER_PREFIX.length() + 2;
+
         try {
-            Long maxPolicy = jdbcTemplate.queryForObject(
-                    "SELECT MAX(CAST(SUBSTRING(policy_number, 5) AS BIGINT)) FROM policies",
+            var maxPolicy = jdbcTemplate.queryForObject(
+                    "SELECT MAX(CAST(SUBSTRING(policy_number, " + policyOffset + ") AS BIGINT)) FROM policies",
                     Long.class);
             if (maxPolicy != null) {
-                policyCounter = maxPolicy + 1;
+                policyCounter.set(maxPolicy + 1);
             }
         } catch (Exception e) {
             // table might not exist yet on first run
         }
 
         try {
-            Long maxClaim = jdbcTemplate.queryForObject(
-                    "SELECT MAX(CAST(SUBSTRING(claim_number, 5) AS BIGINT)) FROM claims",
+            var maxClaim = jdbcTemplate.queryForObject(
+                    "SELECT MAX(CAST(SUBSTRING(claim_number, " + claimOffset + ") AS BIGINT)) FROM claims",
                     Long.class);
             if (maxClaim != null) {
-                claimCounter = maxClaim + 1;
+                claimCounter.set(maxClaim + 1);
             }
         } catch (Exception e) {
             // table might not exist yet on first run

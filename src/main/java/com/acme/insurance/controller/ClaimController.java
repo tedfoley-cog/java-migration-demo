@@ -4,7 +4,6 @@ import com.acme.insurance.dto.ClaimDTO;
 import com.acme.insurance.service.ClaimService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -25,20 +24,23 @@ import java.util.Map;
 @Tag(name = "Claims", description = "Insurance claims processing endpoints")
 public class ClaimController {
 
-    @Autowired
-    private ClaimService claimService;
+    private final ClaimService claimService;
+
+    public ClaimController(ClaimService claimService) {
+        this.claimService = claimService;
+    }
 
     @GetMapping
     @Operation(summary = "List all claims")
     public ResponseEntity<List<ClaimDTO>> getAllClaims() {
-        List<ClaimDTO> claims = claimService.getAllClaims();
+        var claims = claimService.getAllClaims();
         return ResponseEntity.ok(claims);
     }
 
     @GetMapping("/{id}")
     @Operation(summary = "Get claim by ID")
     public ResponseEntity<ClaimDTO> getClaimById(@PathVariable Long id) {
-        ClaimDTO claim = claimService.getClaimById(id);
+        var claim = claimService.getClaimById(id);
         if (claim == null) {
             return ResponseEntity.notFound().build();
         }
@@ -48,14 +50,14 @@ public class ClaimController {
     @GetMapping("/policy/{policyId}")
     @Operation(summary = "Get claims for a specific policy")
     public ResponseEntity<List<ClaimDTO>> getClaimsByPolicy(@PathVariable Long policyId) {
-        List<ClaimDTO> claims = claimService.getClaimsByPolicyId(policyId);
+        var claims = claimService.getClaimsByPolicyId(policyId);
         return ResponseEntity.ok(claims);
     }
 
     @PostMapping
     @Operation(summary = "File a new claim", description = "Submit a claim against an existing policy. Requires policyId.")
     public ResponseEntity<ClaimDTO> fileClaim(@RequestBody ClaimDTO claimDTO) {
-        ClaimDTO filed = claimService.fileClaim(claimDTO);
+        var filed = claimService.fileClaim(claimDTO);
         return ResponseEntity.status(HttpStatus.CREATED).body(filed);
     }
 
@@ -64,7 +66,7 @@ public class ClaimController {
     public ResponseEntity<ClaimDTO> approveClaim(
             @PathVariable Long id,
             @RequestParam BigDecimal approvedAmount) {
-        ClaimDTO approved = claimService.approveClaim(id, approvedAmount);
+        var approved = claimService.approveClaim(id, approvedAmount);
         return ResponseEntity.ok(approved);
     }
 
@@ -73,21 +75,21 @@ public class ClaimController {
     public ResponseEntity<ClaimDTO> denyClaim(
             @PathVariable Long id,
             @RequestParam String reason) {
-        ClaimDTO denied = claimService.denyClaim(id, reason);
+        var denied = claimService.denyClaim(id, reason);
         return ResponseEntity.ok(denied);
     }
 
     @GetMapping("/stats")
     @Operation(summary = "Get claim statistics by status", description = "Raw SQL aggregation — legacy pattern")
     public ResponseEntity<List<Map<String, Object>>> getClaimStats() {
-        List<Map<String, Object>> stats = claimService.getClaimStatsByStatus();
+        var stats = claimService.getClaimStatsByStatus();
         return ResponseEntity.ok(stats);
     }
 
     @GetMapping("/total-approved")
     @Operation(summary = "Get total approved claim amount")
     public ResponseEntity<BigDecimal> getTotalApproved() {
-        BigDecimal total = claimService.getTotalApprovedAmount();
+        var total = claimService.getTotalApprovedAmount();
         return ResponseEntity.ok(total);
     }
 }
